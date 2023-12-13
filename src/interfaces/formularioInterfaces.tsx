@@ -1,4 +1,3 @@
-
 // Tipo para las secciones
 export interface sectionInterface {
     section: string;
@@ -16,6 +15,16 @@ export interface sectionInterface {
     >;
 }
 
+// export interface questionInterface {
+//     inputText?: inputTextInerface;
+//     inputNumber?: inputNumberInerface;
+//     inputSelect?: inputSelectInterface;
+//     inputTable?: inputTableInterface;
+//     inputList?: inputListInterface;
+//     inputEmail?: inputEmailInerface;
+//     inputCheck?: inputCheckInterface;
+//     inputPassword?: inputPasswordInterface;
+// }
 // Tipo padre para derivar los inputs
 export interface inputInterface {
     type: string;
@@ -26,7 +35,6 @@ export interface inputInterface {
     hideField?: 'country';
     condition?: 'México';
 }
-
 
 // Inputs distintos de ingreso de datos
 

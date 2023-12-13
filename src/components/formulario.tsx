@@ -1,6 +1,17 @@
 // El formulario se estructura en: sections
 
-import { sectionInterface } from '../interfaces/formularioInterfaces';
+import { useState } from 'react';
+import {
+    inputCheckInterface,
+    inputEmailInerface,
+    inputListInterface,
+    inputNumberInerface,
+    inputPasswordInterface,
+    inputSelectInterface,
+    inputTableInterface,
+    inputTextInerface,
+    sectionInterface,
+} from '../interfaces/formularioInterfaces';
 
 // Section
 // // validate: numero de inputs requeridos
@@ -44,6 +55,13 @@ import { sectionInterface } from '../interfaces/formularioInterfaces';
 
 const Formulario = ({ data }: { data: sectionInterface[] | undefined }) => {
     if (data == undefined) return;
+
+    const [arrNew, setArrNew] = useState();
+    const [arrRenew, setArrRenew] = useState();
+
+    data.map((sectionObj) => {
+        questionsForms({ sectionObj });
+    });
     return (
         <>
             <h1 className="my-5">Section</h1>
@@ -225,3 +243,229 @@ const Formulario = ({ data }: { data: sectionInterface[] | undefined }) => {
 };
 
 export default Formulario;
+
+const questionsForms = ({ sectionObj }: { sectionObj: sectionInterface }) => {
+    sectionObj.questions.map((question) => {
+        formSelection({ question });
+    });
+};
+
+// Funcion que crea el input adecuado dependiendo de la pregunta
+const formSelection = ({
+    question,
+}: {
+    question:
+        | inputTextInerface
+        | inputNumberInerface
+        | inputSelectInterface
+        | inputTableInterface
+        | inputListInterface
+        | inputEmailInerface
+        | inputCheckInterface
+        | inputPasswordInterface;
+}) => {
+    const type = question.type;
+    switch (type) {
+        case 'text':
+            console.log('TEXT');
+            break;
+        case 'number':
+            console.log('NUMBER');
+            break;
+        case 'select':
+            break;
+        case 'table':
+            break;
+        case 'list':
+            break;
+        case 'email':
+            break;
+        case 'password':
+            break;
+        case 'checkbox':
+            break;
+        default:
+            break;
+    }
+};
+
+export const template = () => {
+    return (
+        <>
+            <h1 className="my-5">Section</h1>
+
+            <div className="form-card text-start p-5 container">
+                {/* Form */}
+                <form>
+                    {/* Text */}
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Text input</label>
+                        <input
+                            id=""
+                            name=""
+                            type="text"
+                            className="form-control form-input"
+                        ></input>
+                        <div className="form-text fw-bold">
+                            Sample description
+                        </div>
+                    </div>
+
+                    {/* Number */}
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">
+                            Number input
+                        </label>
+                        <input
+                            id=""
+                            name=""
+                            type="number"
+                            min={1}
+                            max={10}
+                            className="form-control form-input"
+                        ></input>
+                        <div className="form-text fw-bold">
+                            Sample description
+                        </div>
+                    </div>
+
+                    {/* Select */}
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">
+                            Select input
+                        </label>
+                        <select
+                            id=""
+                            name=""
+                            className="form-select form-input"
+                        >
+                            <option hidden defaultValue={''}>
+                                Selecciona una opción
+                            </option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                    </div>
+
+                    {/* Table */}
+                    <div className="my-5">
+                        <label className="form-label fw-bold">Table</label>
+                        <div className="row p-3 my-3 border-bottom border-3 border-secondary">
+                            <label className="align-self-center fw-bold col-9">
+                                Text
+                            </label>
+                            <select
+                                id=""
+                                name=""
+                                className="form-select form-input col"
+                            >
+                                <option hidden defaultValue={''}>
+                                    Selecciona una opción
+                                </option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* List */}
+                    <div className="my-5">
+                        <label className="form-label fw-bold">List</label>
+                        <div className="row p-3 my-3">
+                            <label className="align-self-center fw-bold col-10">
+                                Text
+                            </label>
+                            <select
+                                id=""
+                                name=""
+                                className="form-select form-input col"
+                            >
+                                <option hidden defaultValue={''}></option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div className="row p-3 my-3">
+                            <label className="align-self-center fw-bold col-10">
+                                Text
+                            </label>
+                            <select
+                                id=""
+                                name=""
+                                className="form-select form-input col"
+                            >
+                                <option hidden defaultValue={''}></option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div className="row p-3 my-3 border-bottom border-3 border-secondary">
+                            <label className="align-self-center fw-bold col-10">
+                                Text
+                            </label>
+                            <select
+                                id=""
+                                name=""
+                                className="form-select form-input col"
+                            >
+                                <option hidden defaultValue={''}></option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Email */}
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Email</label>
+                        <input
+                            id=""
+                            name=""
+                            type="email"
+                            className="form-control form-input"
+                        ></input>
+                        <div className="form-text fw-bold">
+                            Ingresa el correo
+                        </div>
+                    </div>
+
+                    {/* Password */}
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Password</label>
+                        <input
+                            id=""
+                            name=""
+                            type="password"
+                            min={10}
+                            className="form-control form-input"
+                        ></input>
+                        <div className="form-text fw-bold">
+                            La contraseña tiene que tener al menos x caracteres
+                        </div>
+                    </div>
+
+                    {/* Checkbox */}
+                    <div className="mb-3 form-check">
+                        <input
+                            type="checkbox"
+                            className="form-check-input"
+                        ></input>
+                        <label className="form-check-label fw-bold">
+                            Check box
+                        </label>
+                    </div>
+
+                    {/* Submit button */}
+                    <button type="submit" className="btn btn-primary fw-bold">
+                        Enviar formulario
+                    </button>
+                </form>
+            </div>
+        </>
+    );
+};
