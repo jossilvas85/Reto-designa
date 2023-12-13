@@ -11,7 +11,7 @@ const Header = () => {
                     className="logo mx-2"
                     alt=""
                 ></img>
-               <p className="fw-bold mx-2 my-0">Formulario para preparatorias</p> 
+               <p className="fw-bold text-light mx-2 my-0">Formulario para preparatorias</p> 
             </div>
         </nav>
     );
