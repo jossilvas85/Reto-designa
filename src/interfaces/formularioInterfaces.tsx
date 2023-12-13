@@ -1,3 +1,5 @@
+
+// Tipo para las secciones
 export interface sectionInterface {
     section: string;
     validate: number;
@@ -14,31 +16,41 @@ export interface sectionInterface {
     >;
 }
 
+// Tipo padre para derivar los inputs
 export interface inputInterface {
     type: string;
-    name: string;
+    name?: string;
     title: string;
     required?: boolean;
     extra?: string;
-    hideField?: 'México';
-    condition?: 'country';
+    hideField?: 'country';
+    condition?: 'México';
 }
 
+
+// Inputs distintos de ingreso de datos
+
+// Texto
 export interface inputTextInerface extends inputInterface {
     filter?: boolean;
 }
 
+// Numero
 export interface inputNumberInerface extends inputInterface {
     max: number;
     min: number;
     step: number;
 }
 
+// Select
 export interface inputSelectInterface extends inputInterface {
+    sectionTitle?: string;
     options: string[];
 }
 
-export interface inputTableInterface extends sectionInterface {
+// Talba
+export interface inputTableInterface extends inputInterface {
+    max?: number;
     rows: Array<
         | inputTextInerface
         | inputNumberInerface
@@ -51,7 +63,8 @@ export interface inputTableInterface extends sectionInterface {
     >;
 }
 
-export interface inputListInterface extends sectionInterface {
+// Lista
+export interface inputListInterface extends inputInterface {
     max: number;
     rows: Array<
         | inputTextInerface
@@ -65,15 +78,18 @@ export interface inputListInterface extends sectionInterface {
     >;
 }
 
+// Email
 export interface inputEmailInerface extends inputInterface {
     equalTo: 'email';
 }
 
+// CheckBox
 export interface inputCheckInterface extends inputInterface {
     replace?: boolean;
     options: string[];
 }
 
+// Password
 export interface inputPasswordInterface extends inputInterface {
     min: number;
 }

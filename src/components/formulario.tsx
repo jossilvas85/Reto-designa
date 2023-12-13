@@ -1,5 +1,7 @@
 // El formulario se estructura en: sections
 
+import { sectionInterface } from '../interfaces/formularioInterfaces';
+
 // Section
 // // validate: numero de inputs requeridos
 // // target: donde se va a guardar, pueden ser más de una opción
@@ -40,7 +42,8 @@
 
 // // LIST
 
-const Formulario = () => {
+const Formulario = ({ data }: { data: sectionInterface[] | undefined }) => {
+    if (data == undefined) return;
     return (
         <>
             <h1 className="my-5">Section</h1>
