@@ -61,23 +61,29 @@ export interface formsInterface {
     questions: JSX.Element[];
 }
 
+const EventHandlerCountry = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    console.log(value);
+};
+
 const Formulario = ({ data }: { data: sectionInterface[] | undefined }) => {
     const [arrNew, setArrNew] = useState();
     const [arrRenew, setArrRenew] = useState();
+    const [country, setCountry] = useState('');
     const [forms, setForms] = useState<formsInterface[]>();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
     // Función para manejar el envío del formulario
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         // Aquí obtienes los datos del formulario
         const formFields = event.currentTarget.elements;
+        if (formFields == undefined) return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const formData: any = [];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formValues: any = {};
         for (let i = 0; i < formFields.length - 1; i++) {
             const fieldName = formFields[i].id;
             if (fieldName) {
@@ -254,7 +260,11 @@ const CreateInputSelect = (
             id={question.name}
             className="form-select form-input"
             data-target={target.join(',')}
+            // disabled={}
             {...SetDinamicAttributes({ question })}
+            onChange={
+                question.name === 'country' ? EventHandlerCountry : undefined
+            }
         >
             <option hidden defaultValue={''}>
                 Selecciona una opción
