@@ -9,7 +9,7 @@ export interface sectionInterface {
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface
-        | inputEmailInerface
+        | inputEmailInterface
         | inputCheckInterface
         | inputPasswordInterface
     >;
@@ -21,7 +21,7 @@ export interface sectionInterface {
 //     inputSelect?: inputSelectInterface;
 //     inputTable?: inputTableInterface;
 //     inputList?: inputListInterface;
-//     inputEmail?: inputEmailInerface;
+//     inputEmail?: inputEmailInterface;
 //     inputCheck?: inputCheckInterface;
 //     inputPassword?: inputPasswordInterface;
 // }
@@ -58,14 +58,13 @@ export interface inputSelectInterface extends inputInterface {
 
 // Talba
 export interface inputTableInterface extends inputInterface {
-    max?: number;
     rows: Array<
         | inputTextInerface
         | inputNumberInerface
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface
-        | inputEmailInerface
+        | inputEmailInterface
         | inputCheckInterface
         | inputPasswordInterface
     >;
@@ -80,14 +79,14 @@ export interface inputListInterface extends inputInterface {
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface
-        | inputEmailInerface
+        | inputEmailInterface
         | inputCheckInterface
         | inputPasswordInterface
     >;
 }
 
 // Email
-export interface inputEmailInerface extends inputInterface {
+export interface inputEmailInterface extends inputInterface {
     equalTo: 'email';
 }
 
