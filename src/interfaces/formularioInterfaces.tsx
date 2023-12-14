@@ -4,8 +4,8 @@ export interface sectionInterface {
     validate: number;
     target: string[];
     questions: Array<
-        | inputTextInerface
-        | inputNumberInerface
+        | inputTextInterface
+        | inputNumberInterface
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface
@@ -16,8 +16,8 @@ export interface sectionInterface {
 }
 
 // export interface questionInterface {
-//     inputText?: inputTextInerface;
-//     inputNumber?: inputNumberInerface;
+//     inputText?: inputTextInterface;
+//     inputNumber?: inputNumberInterface;
 //     inputSelect?: inputSelectInterface;
 //     inputTable?: inputTableInterface;
 //     inputList?: inputListInterface;
@@ -39,12 +39,12 @@ export interface inputInterface {
 // Inputs distintos de ingreso de datos
 
 // Texto
-export interface inputTextInerface extends inputInterface {
+export interface inputTextInterface extends inputInterface {
     filter?: boolean;
 }
 
 // Numero
-export interface inputNumberInerface extends inputInterface {
+export interface inputNumberInterface extends inputInterface {
     max: number;
     min: number;
     step: number;
@@ -59,8 +59,8 @@ export interface inputSelectInterface extends inputInterface {
 // Talba
 export interface inputTableInterface extends inputInterface {
     rows: Array<
-        | inputTextInerface
-        | inputNumberInerface
+        | inputTextInterface
+        | inputNumberInterface
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface
@@ -74,8 +74,8 @@ export interface inputTableInterface extends inputInterface {
 export interface inputListInterface extends inputInterface {
     max: number;
     rows: Array<
-        | inputTextInerface
-        | inputNumberInerface
+        | inputTextInterface
+        | inputNumberInterface
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface

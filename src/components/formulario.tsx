@@ -5,13 +5,14 @@ import {
     inputCheckInterface,
     inputEmailInterface,
     inputListInterface,
-    inputNumberInerface,
+    inputNumberInterface,
     inputPasswordInterface,
     inputSelectInterface,
     inputTableInterface,
-    inputTextInerface,
+    inputTextInterface,
     sectionInterface,
 } from '../interfaces/formularioInterfaces';
+import Subform from './subform';
 
 // Section
 // // validate: numero de inputs requeridos
@@ -53,7 +54,7 @@ import {
 
 // // LIST
 
-interface formsInterface {
+export interface formsInterface {
     section: string;
     validate: number;
     target: string[];
@@ -64,12 +65,36 @@ const Formulario = ({ data }: { data: sectionInterface[] | undefined }) => {
     const [arrNew, setArrNew] = useState();
     const [arrRenew, setArrRenew] = useState();
     const [forms, setForms] = useState<formsInterface[]>();
-    const [selectedCountry, setSelectedCountry] = useState<string>('');
 
-    const handleCountryChange = (
-        event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        setSelectedCountry(event.target.value);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+    // Función para manejar el envío del formulario
+    const handleSubmit = (event: React.FormEvent) => {
+        event.preventDefault();
+
+        // Aquí obtienes los datos del formulario
+        const formFields = event.currentTarget.elements;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const formData: any = [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const formValues: any = {};
+        for (let i = 0; i < formFields.length - 1; i++) {
+            const fieldName = formFields[i].id;
+            if (fieldName) {
+                const formTargets = formFields[i].dataset.target.split(',');
+                formTargets.forEach((target: string) => {
+                    // Inicializar el objeto del target si aún no existe
+                    if (!formData[target]) {
+                        formData[target] = {};
+                    }
+
+                    // Asignar el valor al target específico
+                    formData[target][fieldName] = formFields[i].value;
+                });
+            }
+        }
+
+        console.log(formData);
     };
 
     useEffect(() => {
@@ -90,34 +115,16 @@ const Formulario = ({ data }: { data: sectionInterface[] | undefined }) => {
     if (data == undefined) return;
 
     return (
-        <>
-            {forms?.map((form, index) => (
-                <div key={`${form.section}_${form.target}`}>
-                    <h2 className="my-5">{form.section}</h2>
-
-                    <div className="form-card text-start p-md-5 py-2 container ">
-                        <form>
-                            {form.questions.map((question) => (
-                                <div>{question}</div>
-                            ))}
-                        </form>
-
-                        {index === forms.length - 1 ? (
-                            <div className="text-end mt-5">
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary fw-bold"
-                                >
-                                    Enviar formulario
-                                </button>
-                            </div>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                </div>
+        <form onSubmit={handleSubmit}>
+            {forms?.map((form) => (
+                <Subform key={form.section} form={form} />
             ))}
-        </>
+            <div className="text-end m-5">
+                <button type="submit" className="btn btn-primary fw-bold">
+                    Enviar formulario
+                </button>
+            </div>
+        </form>
     );
 };
 
@@ -128,8 +135,8 @@ const SetDinamicAttributes = ({
     question,
 }: {
     question:
-        | inputTextInerface
-        | inputNumberInerface
+        | inputTextInterface
+        | inputNumberInterface
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface
@@ -140,70 +147,76 @@ const SetDinamicAttributes = ({
     ...(question.required == false ? {} : { required: true }),
     // ...(question.condition ? { condition: 'México' } : {}),
     // ...(question.hideField ? { hideField: 'country' } : {}),
-    ...((question as inputNumberInerface).min
-        ? { min: (question as inputNumberInerface).min }
+    ...((question as inputNumberInterface).min
+        ? { min: (question as inputNumberInterface).min }
         : {}),
-    ...((question as inputNumberInerface).max
-        ? { max: (question as inputNumberInerface).max }
+    ...((question as inputNumberInterface).max
+        ? { max: (question as inputNumberInterface).max }
         : {}),
-    ...(question.condition == 'México' ? { disabled: true } : {}),
+    // ...(question.condition == 'México' ? { disabled: true } : {}),
 });
 
 // Funcion que crea inputs por cada seccion
 const InputsPerSection = ({ sectionObj }: { sectionObj: sectionInterface }) =>
     sectionObj.questions.map((question) =>
         // Se crea el INPUT adecuado dependiendo al TYPE
-        InputSelecction({ question })
+        InputSelecction({ question, target: sectionObj.target })
     );
 
 // Funcion que crea el input adecuado dependiendo del TYPE
 const InputSelecction = ({
     question,
+    target,
 }: {
     question:
-        | inputNumberInerface
-        | inputTextInerface
+        | inputNumberInterface
+        | inputTextInterface
         | inputSelectInterface
         | inputTableInterface
         | inputListInterface
         | inputEmailInterface
         | inputCheckInterface
         | inputPasswordInterface;
+    target: string[];
 }) => {
     const type = question.type;
     switch (type) {
         case 'text':
-            return CreateInputText(question as inputTextInerface);
+            return CreateInputText(question as inputTextInterface, target);
         case 'number':
-            return CreateInputNumber(question as inputNumberInerface);
+            return CreateInputNumber(question as inputNumberInterface, target);
         case 'select':
-            return CreateInputSelect(question as inputSelectInterface);
+            return CreateInputSelect(question as inputSelectInterface, target);
         case 'table':
-            return CreateInputTable(question as inputTableInterface);
+            return CreateInputTable(question as inputTableInterface, target);
         case 'list':
-            return CreateInputList(question as inputListInterface);
+            return CreateInputList(question as inputListInterface, target);
         case 'email':
-            return CreateInputEmail(question as inputEmailInterface);
+            return CreateInputEmail(question as inputEmailInterface, target);
         case 'checkbox':
-            return CreateInputCheckbox(question as inputCheckInterface);
+            return CreateInputCheckbox(question as inputCheckInterface, target);
     }
 };
 
 // FUNCIONES PARA CREAR INPUTS
-const CreateInputText = (question: inputTextInerface) => (
+const CreateInputText = (question: inputTextInterface, target: string[]) => (
     <div key={question.name} className="mb-3">
         <label className="form-label fw-bold">{question.title}</label>
         <input
             id={question.name}
             type={question.type}
             className="form-control form-input"
+            data-target={target.join(',')}
             {...SetDinamicAttributes({ question })}
         ></input>
         {/* <div className="form-text fw-bold">Sample description</div> */}
     </div>
 );
 
-const CreateInputNumber = (question: inputNumberInerface) => (
+const CreateInputNumber = (
+    question: inputNumberInterface,
+    target: string[]
+) => (
     <div key={question.name} className="mb-3">
         <label className="form-label fw-bold">{question.title}</label>
         <input
@@ -211,7 +224,9 @@ const CreateInputNumber = (question: inputNumberInerface) => (
             type={question.type}
             min={question.min}
             max={question.max}
+            step={question.step ? question.step : undefined}
             className="form-control form-input"
+            data-target={target.join(',')}
             {...SetDinamicAttributes({ question })}
         ></input>
         {question.min && question.max ? (
@@ -229,12 +244,16 @@ const CreateInputNumber = (question: inputNumberInerface) => (
     </div>
 );
 
-const CreateInputSelect = (question: inputSelectInterface) => (
+const CreateInputSelect = (
+    question: inputSelectInterface,
+    target: string[]
+) => (
     <div key={question.name} className="mb-3">
         <label className="form-label fw-bold">{question.title}</label>
         <select
             id={question.name}
             className="form-select form-input"
+            data-target={target.join(',')}
             {...SetDinamicAttributes({ question })}
         >
             <option hidden defaultValue={''}>
@@ -249,7 +268,7 @@ const CreateInputSelect = (question: inputSelectInterface) => (
     </div>
 );
 
-const CreateInputTable = (question: inputTableInterface) => (
+const CreateInputTable = (question: inputTableInterface, target: string[]) => (
     <div
         key={question.name}
         className="my-5 py-4 border-top border-bottom border-3 border-secondary"
@@ -263,7 +282,7 @@ const CreateInputTable = (question: inputTableInterface) => (
                             key={row.name}
                             className="col-md-6 col-sm-12 my-2 "
                         >
-                            {InputSelecction({ question: row })}
+                            {InputSelecction({ question: row, target })}
                         </div>
                     );
                 })}
@@ -272,7 +291,7 @@ const CreateInputTable = (question: inputTableInterface) => (
     </div>
 );
 
-const CreateInputList = (question: inputListInterface) => (
+const CreateInputList = (question: inputListInterface, target: string[]) => (
     <div
         key={question.name}
         className="my-5 py-4 border-top border-bottom border-3 border-secondary"
@@ -292,6 +311,7 @@ const CreateInputList = (question: inputListInterface) => (
                                 className="form-control form-input"
                                 min={1}
                                 max={question.max}
+                                data-target={target.join(',')}
                                 {...SetDinamicAttributes({ question: row })}
                             ></input>
                             {/* <div className="form-text fw-bold">Sample description</div> */}
@@ -303,29 +323,35 @@ const CreateInputList = (question: inputListInterface) => (
     </div>
 );
 
-const CreateInputEmail = (question: inputEmailInterface) => (
+const CreateInputEmail = (question: inputEmailInterface, target: string[]) => (
     <div key={question.name} className="mb-3">
         <label className="form-label fw-bold">{question.title}</label>
         <input
             id={question.name}
             type={question.type}
             className="form-control form-input"
+            data-target={target.join(',')}
             {...SetDinamicAttributes({ question })}
         ></input>
         {/* <div className="form-text fw-bold">Sample description</div> */}
     </div>
 );
 
-const CreateInputCheckbox = (question: inputCheckInterface) => (
+const CreateInputCheckbox = (
+    question: inputCheckInterface,
+    target: string[]
+) => (
     <div key={question.name} className="my-4 form-check">
         <label className="form-check-label fw-bold">{question.title}</label>
 
         {question.options.map((option) => (
             <input
                 key={`${question.name}_option`}
-                id={option}
+                id={question.name}
                 type="checkbox"
                 className="form-check-input"
+                data-target={target.join(',')}
+                value={option}
             ></input>
         ))}
     </div>
