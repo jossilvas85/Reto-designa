@@ -1,6 +1,20 @@
 import { useState } from 'react';
-import { inputListInterface } from '../../interfaces/formularioInterfaces';
+import {
+    inputCheckboxInterface,
+    inputEmailInterface,
+    inputListInterface,
+    inputNumberInterface,
+    inputPasswordInterface,
+    inputSelectInterface,
+    inputTableInterface,
+    inputTextInterface,
+} from '../../interfaces/formularioInterfaces';
 import { DinamicAttributes } from './customInputs';
+
+interface selectedNumbersInterface {
+    name: string;
+    number: number;
+}
 
 const InputList = ({
     question,
@@ -9,27 +23,12 @@ const InputList = ({
     question: inputListInterface;
     target: string[];
 }) => {
-    const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [selectedNumbers, setSelectedNumbers] = useState<
+        selectedNumbersInterface[]
+    >([]);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setErrorMessage('');
-        const enteredValue = parseInt(event.target.value, 10);
-
-        // Verificar si el valor ingresado está en el rango del 1 al 6
-        if (!isNaN(enteredValue) && enteredValue >= 1 && enteredValue <= 6) {
-            // Verificar si el número ya ha sido seleccionado
-            if (!selectedNumbers.includes(enteredValue)) {
-                setSelectedNumbers([...selectedNumbers, enteredValue]);
-                // Resto de la lógica
-            } else {
-                // El número ya ha sido seleccionado, puedes mostrar un mensaje de error
-                setErrorMessage('Verifica que no hayan numeros repetidos');
-                // También puedes mostrar un mensaje en la interfaz de usuario
-            }
-        } else {
-            setErrorMessage('Ingresa números válidos');
-        }
+    const HandlerSetSelectedNumbers = (data: selectedNumbersInterface[]) => {
+        setSelectedNumbers(data);
     };
 
     return (
@@ -41,28 +40,135 @@ const InputList = ({
             <div className="container">
                 <div className="row py-3">
                     {question.rows.map((row) => (
-                        <div key={row.name} className="mb-3">
-                            <label className="form-label fw-bold">
-                                {row.title}
-                            </label>
-                            <input
-                                id={row.name}
-                                type={row.type}
-                                className="form-control form-input"
-                                min={1}
-                                max={question.max}
-                                data-target={target.join(',')}
-                                onChange={handleInputChange}
-                                {...DinamicAttributes({ question: row })}
-                            ></input>
-                            {/* <div className="form-text fw-bold">Sample description</div> */}
-                        </div>
+                        // <div key={row.name} className="mb-3">
+                        //     <label className="form-label fw-bold">
+                        //         {row.title}
+                        //     </label>
+                        //     <input
+                        //         id={row.name}
+                        //         type={row.type}
+                        //         className="form-control form-input"
+                        //         min={1}
+                        //         max={question.max}
+                        //         data-target={target.join(',')}
+                        //         onChange={handleInputChange}
+                        //         {...DinamicAttributes({ question: row })}
+                        //     ></input>
+                        //     {/* <div className="form-text fw-bold">Sample description</div> */}
+                        // </div>
+                        <InputList_Input
+                            key={row.name}
+                            selectedNumbers={selectedNumbers}
+                            HandlerSetSelectedNumbers={
+                                HandlerSetSelectedNumbers
+                            }
+                            row={row}
+                            question={question}
+                            dataTarget={target}
+                        />
                     ))}
                 </div>
             </div>
-            <p className='my-0 mx-3 fw-bold text-danger'>{errorMessage}</p>
         </div>
     );
 };
 
 export default InputList;
+
+interface InputList_Input {
+    selectedNumbers: selectedNumbersInterface[];
+    HandlerSetSelectedNumbers: (data: selectedNumbersInterface[]) => void;
+    row:
+        | inputTextInterface
+        | inputNumberInterface
+        | inputSelectInterface
+        | inputTableInterface
+        | inputListInterface
+        | inputEmailInterface
+        | inputCheckboxInterface
+        | inputPasswordInterface;
+
+    question: inputListInterface;
+    dataTarget: string[];
+}
+
+export const InputList_Input = ({
+    selectedNumbers,
+    HandlerSetSelectedNumbers,
+    row,
+    question,
+    dataTarget,
+}: InputList_Input) => {
+    const [previousValue, setPreviousValue] = useState<number>(NaN);
+    const [errorMessage, setErrorMessage] = useState<string>('');
+
+    const handleInputChange = (
+        event: React.ChangeEvent<HTMLInputElement>,
+        name: string
+    ) => {
+        setErrorMessage('');
+
+        if (event.target.value === '') {
+            const copySelectedNumbers = [...selectedNumbers];
+            const newSelectedNumbers = copySelectedNumbers.filter(
+                (item) => item.name !== name
+            );
+            HandlerSetSelectedNumbers([...newSelectedNumbers]);
+        } else {
+            const enteredValue = parseInt(event.target.value, 10);
+
+            if (enteredValue < 1 || enteredValue > question.max) {
+                console.log('HERE 1');
+
+                setErrorMessage('Valor incorrecto o repetido');
+                return;
+            }
+
+            const existingNumber = selectedNumbers.some(
+                (item) => item.number === enteredValue
+            );
+
+            if (existingNumber) {
+                console.log('HERE 3');
+
+                setErrorMessage('Valor incorrecto o repetido');
+                return;
+            } else {
+                // Guardo solamente si el valor es correcto
+                if (
+                    typeof enteredValue === 'number' &&
+                    !Number.isNaN(enteredValue)
+                ) {
+                    HandlerSetSelectedNumbers([
+                        ...selectedNumbers,
+                        { name: name, number: enteredValue },
+                    ]);
+                    setPreviousValue(enteredValue);
+                }
+            }
+        }
+    };
+    const handleInputBlur = () => {
+        console.log(selectedNumbers);
+    };
+
+    return (
+        <div className="mb-3">
+            <label className="form-label fw-bold">{row.title}</label>
+            <input
+                id={row.name}
+                type={row.type}
+                className="form-control form-input"
+                min={1}
+                max={question.max}
+                data-target={dataTarget.join(',')}
+                onChange={(event) =>
+                    handleInputChange(event, row.name as string)
+                }
+                onBlur={handleInputBlur}
+                {...DinamicAttributes({ question: row })}
+            ></input>
+            <p className="form-text fw-bold text-danger">{errorMessage}</p>
+        </div>
+    );
+};
