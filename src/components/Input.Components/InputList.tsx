@@ -118,8 +118,6 @@ export const InputList_Input = ({
             const enteredValue = parseInt(event.target.value, 10);
 
             if (enteredValue < 1 || enteredValue > question.max) {
-                console.log('HERE 1');
-
                 setErrorMessage('Valor incorrecto o repetido');
                 return;
             }
@@ -129,8 +127,6 @@ export const InputList_Input = ({
             );
 
             if (existingNumber) {
-                console.log('HERE 3');
-
                 setErrorMessage('Valor incorrecto o repetido');
                 return;
             } else {
@@ -148,9 +144,6 @@ export const InputList_Input = ({
             }
         }
     };
-    const handleInputBlur = () => {
-        console.log(selectedNumbers);
-    };
 
     return (
         <div className="mb-3">
@@ -165,7 +158,6 @@ export const InputList_Input = ({
                 onChange={(event) =>
                     handleInputChange(event, row.name as string)
                 }
-                onBlur={handleInputBlur}
                 {...DinamicAttributes({ question: row })}
             ></input>
             <p className="form-text fw-bold text-danger">{errorMessage}</p>
