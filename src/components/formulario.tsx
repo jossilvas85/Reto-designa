@@ -64,6 +64,13 @@ const Formulario = ({ data }: { data: sectionInterface[] | undefined }) => {
     const [arrNew, setArrNew] = useState();
     const [arrRenew, setArrRenew] = useState();
     const [forms, setForms] = useState<formsInterface[]>();
+    const [selectedCountry, setSelectedCountry] = useState<string>('');
+
+    const handleCountryChange = (
+        event: React.ChangeEvent<HTMLSelectElement>
+    ) => {
+        setSelectedCountry(event.target.value);
+    };
 
     useEffect(() => {
         if (data != undefined) {
@@ -129,9 +136,18 @@ const SetDinamicAttributes = ({
         | inputEmailInterface
         | inputCheckInterface
         | inputPasswordInterface;
-}) => {
-    return { ...(question.required == false ? {} : { required: true }) };
-};
+}) => ({
+    ...(question.required == false ? {} : { required: true }),
+    // ...(question.condition ? { condition: 'México' } : {}),
+    // ...(question.hideField ? { hideField: 'country' } : {}),
+    ...((question as inputNumberInerface).min
+        ? { min: (question as inputNumberInerface).min }
+        : {}),
+    ...((question as inputNumberInerface).max
+        ? { max: (question as inputNumberInerface).max }
+        : {}),
+    ...(question.condition == 'México' ? { disabled: true } : {}),
+});
 
 // Funcion que crea inputs por cada seccion
 const InputsPerSection = ({ sectionObj }: { sectionObj: sectionInterface }) =>
@@ -193,10 +209,23 @@ const CreateInputNumber = (question: inputNumberInerface) => (
         <input
             id={question.name}
             type={question.type}
+            min={question.min}
+            max={question.max}
             className="form-control form-input"
             {...SetDinamicAttributes({ question })}
         ></input>
-        {/* <div className="form-text fw-bold">Sample description</div> */}
+        {question.min && question.max ? (
+            <div className="form-text fw-bold">
+                El valor mínimo debe ser {question.min} y el máximo{' '}
+                {question.max}
+            </div>
+        ) : question.max ? (
+            <div className="form-text fw-bold">
+                El valor máximo debe ser {question.max}
+            </div>
+        ) : (
+            ''
+        )}
     </div>
 );
 
@@ -230,7 +259,10 @@ const CreateInputTable = (question: inputTableInterface) => (
             <div className="row">
                 {question.rows.map((row) => {
                     return (
-                        <div className="col-md-6 col-sm-12 my-2 ">
+                        <div
+                            key={row.name}
+                            className="col-md-6 col-sm-12 my-2 "
+                        >
                             {InputSelecction({ question: row })}
                         </div>
                     );
@@ -249,7 +281,6 @@ const CreateInputList = (question: inputListInterface) => (
         <div className="container">
             <div className="row py-3">
                 {question.rows.map((row) => {
-                    const { max } = row;
                     return (
                         <div key={row.name} className="mb-3">
                             <label className="form-label fw-bold">
@@ -259,7 +290,9 @@ const CreateInputList = (question: inputListInterface) => (
                                 id={row.name}
                                 type={row.type}
                                 className="form-control form-input"
-                                {...SetDinamicAttributes({ question })}
+                                min={1}
+                                max={question.max}
+                                {...SetDinamicAttributes({ question: row })}
                             ></input>
                             {/* <div className="form-text fw-bold">Sample description</div> */}
                         </div>
@@ -288,194 +321,34 @@ const CreateInputCheckbox = (question: inputCheckInterface) => (
         <label className="form-check-label fw-bold">{question.title}</label>
 
         {question.options.map((option) => (
-            <>
-                <input
-                    id={option}
-                    type="checkbox"
-                    className="form-check-input"
-                ></input>
-            </>
+            <input
+                key={`${question.name}_option`}
+                id={option}
+                type="checkbox"
+                className="form-check-input"
+            ></input>
         ))}
     </div>
 );
 
-const template = () => {
-    return (
-        <>
-            <h2 className="my-5">Section</h2>
+// Funcion para no sobrepasar el limite de los number inputs
+// const handleInputNumberChange = ({
+//     event,
+//     min = 0,
+//     max = 1000,
+// }: {
+//     event: React.ChangeEvent<HTMLInputElement>;
+//     min: number;
+//     max: number;
+// }) => {
+//     const inputValue = event.target.value;
+//     const numericValue = parseFloat(inputValue);
 
-            <div className="form-card text-start p-5 container">
-                {/* Form */}
-                <form>
-                    {/* Text */}
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Text input</label>
-                        <input
-                            id=""
-                            name=""
-                            type="text"
-                            className="form-control form-input"
-                        ></input>
-                        <div className="form-text fw-bold">
-                            Sample description
-                        </div>
-                    </div>
-
-                    {/* Number */}
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">
-                            Number input
-                        </label>
-                        <input
-                            id=""
-                            name=""
-                            type="number"
-                            min={1}
-                            max={10}
-                            className="form-control form-input"
-                        ></input>
-                        <div className="form-text fw-bold">
-                            Sample description
-                        </div>
-                    </div>
-
-                    {/* Select */}
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">
-                            Select input
-                        </label>
-                        <select
-                            id=""
-                            name=""
-                            className="form-select form-input"
-                        >
-                            <option hidden defaultValue={''}>
-                                Selecciona una opción
-                            </option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-                    </div>
-
-                    {/* Table */}
-                    <div className="my-5">
-                        <label className="form-label fw-bold">Table</label>
-                        <div className="row p-3 my-3 border-bottom border-3 border-secondary">
-                            <label className="align-self-center fw-bold col-9">
-                                Text
-                            </label>
-                            <select
-                                id=""
-                                name=""
-                                className="form-select form-input col"
-                            >
-                                <option hidden defaultValue={''}>
-                                    Selecciona una opción
-                                </option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* List */}
-                    <div className="my-5">
-                        <label className="form-label fw-bold">List</label>
-                        <div className="row p-3 my-3">
-                            <label className="align-self-center fw-bold col-10">
-                                Text
-                            </label>
-                            <select
-                                id=""
-                                name=""
-                                className="form-select form-input col"
-                            >
-                                <option hidden defaultValue={''}></option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </select>
-                        </div>
-                        <div className="row p-3 my-3">
-                            <label className="align-self-center fw-bold col-10">
-                                Text
-                            </label>
-                            <select
-                                id=""
-                                name=""
-                                className="form-select form-input col"
-                            >
-                                <option hidden defaultValue={''}></option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </select>
-                        </div>
-                        <div className="row p-3 my-3 border-bottom border-3 border-secondary">
-                            <label className="align-self-center fw-bold col-10">
-                                Text
-                            </label>
-                            <select
-                                id=""
-                                name=""
-                                className="form-select form-input col"
-                            >
-                                <option hidden defaultValue={''}></option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Email */}
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Email</label>
-                        <input
-                            id=""
-                            name=""
-                            type="email"
-                            className="form-control form-input"
-                        ></input>
-                        <div className="form-text fw-bold">
-                            Ingresa el correo
-                        </div>
-                    </div>
-
-                    {/* Password */}
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Password</label>
-                        <input
-                            id=""
-                            name=""
-                            type="password"
-                            min={10}
-                            className="form-control form-input"
-                        ></input>
-                        <div className="form-text fw-bold">
-                            La contraseña tiene que tener al menos x caracteres
-                        </div>
-                    </div>
-
-                    {/* Checkbox */}
-                    <div className="mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            className="form-check-input"
-                        ></input>
-                        <label className="form-check-label fw-bold">
-                            Check box
-                        </label>
-                    </div>
-
-                    {/* Submit button */}
-                    <button type="submit" className="btn btn-primary fw-bold">
-                        Enviar formulario
-                    </button>
-                </form>
-            </div>
-        </>
-    );
-};
+//     console.log(numericValue);
+//     if (!isNaN(numericValue) && numericValue >= min && numericValue <= max) {
+//         event.target.value = numericValue.toString();
+//     } else {
+//         // Si no es un número válido, podrías manejarlo según tus necesidades
+//         event.target.value = '';
+//     }
+// };
