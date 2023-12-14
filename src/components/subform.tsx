@@ -1,4 +1,4 @@
-import { formsInterface } from './formulario';
+import { formsInterface } from "../interfaces/formularioInterfaces";
 
 const Subform = ({ form }: { form: formsInterface }) => {
     return (

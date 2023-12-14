@@ -1,0 +1,25 @@
+import { inputTextInterface } from '../../interfaces/formularioInterfaces';
+import { DinamicAttributes } from './customInputs';
+
+// FUNCIONES PARA CREAR INPUTS
+const InputText = ({
+    question,
+    target,
+}: {
+    question: inputTextInterface;
+    target: string[];
+}) => (
+    <div key={question.name} className="mb-3">
+        <label className="form-label fw-bold">{question.title}</label>
+        <input
+            id={question.name}
+            type={question.type}
+            className="form-control form-input"
+            data-target={target.join(',')}
+            {...DinamicAttributes({ question })}
+        ></input>
+        {/* <div className="form-text fw-bold">Sample description</div> */}
+    </div>
+);
+
+export default InputText;

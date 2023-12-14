@@ -1,3 +1,10 @@
+export interface formsInterface {
+    section: string;
+    validate: number;
+    target: string[];
+    questions: JSX.Element[];
+}
+
 // Tipo para las secciones
 export interface sectionInterface {
     section: string;
@@ -10,7 +17,7 @@ export interface sectionInterface {
         | inputTableInterface
         | inputListInterface
         | inputEmailInterface
-        | inputCheckInterface
+        | inputCheckboxInterface
         | inputPasswordInterface
     >;
 }
@@ -22,7 +29,7 @@ export interface sectionInterface {
 //     inputTable?: inputTableInterface;
 //     inputList?: inputListInterface;
 //     inputEmail?: inputEmailInterface;
-//     inputCheck?: inputCheckInterface;
+//     inputCheck?: inputCheckboxInterface;
 //     inputPassword?: inputPasswordInterface;
 // }
 // Tipo padre para derivar los inputs
@@ -65,7 +72,7 @@ export interface inputTableInterface extends inputInterface {
         | inputTableInterface
         | inputListInterface
         | inputEmailInterface
-        | inputCheckInterface
+        | inputCheckboxInterface
         | inputPasswordInterface
     >;
 }
@@ -80,7 +87,7 @@ export interface inputListInterface extends inputInterface {
         | inputTableInterface
         | inputListInterface
         | inputEmailInterface
-        | inputCheckInterface
+        | inputCheckboxInterface
         | inputPasswordInterface
     >;
 }
@@ -91,7 +98,7 @@ export interface inputEmailInterface extends inputInterface {
 }
 
 // CheckBox
-export interface inputCheckInterface extends inputInterface {
+export interface inputCheckboxInterface extends inputInterface {
     replace?: boolean;
     options: string[];
 }

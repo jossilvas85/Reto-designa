@@ -21,6 +21,7 @@ export const useFetch = <T,>({
 
                 // Hago fetch de datos y los guardo
                 const result = await fetchFunction();
+                
                 setData(result);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (e: any) {
