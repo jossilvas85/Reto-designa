@@ -1,11 +1,11 @@
 // El formulario se estructura en: sections
-import { useState } from 'react';
+// import { useState } from 'react';
 import Subform from './subform';
 import { formsInterface } from '../interfaces/formularioInterfaces';
 
 const Formulario = ({ forms }: { forms: formsInterface[] }) => {
-    const [arrNew, setArrNew] = useState();
-    const [arrRenew, setArrRenew] = useState();
+    // const [arrNew, setArrNew] = useState();
+    // const [arrRenew, setArrRenew] = useState();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
@@ -13,15 +13,22 @@ const Formulario = ({ forms }: { forms: formsInterface[] }) => {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // Aquí obtienes los datos del formulario
-        const formFields = event.currentTarget.elements;
-        if (formFields == undefined) return;
+        const formFields = event.currentTarget
+            .elements as HTMLFormControlsCollection;
+
+        if (!formFields) return;
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const formData: any = [];
+
         for (let i = 0; i < formFields.length - 1; i++) {
-            const fieldName = formFields[i].id;
+            const field = formFields[i] as HTMLInputElement;
+
+            const fieldName = field.id;
+
             if (fieldName) {
-                const formTargets = formFields[i].dataset.target.split(',');
+                const formTargets = field.dataset.target?.split(',') || [];
+
                 formTargets.forEach((target: string) => {
                     // Inicializar el objeto del target si aún no existe
                     if (!formData[target]) {
@@ -29,7 +36,7 @@ const Formulario = ({ forms }: { forms: formsInterface[] }) => {
                     }
 
                     // Asignar el valor al target específico
-                    formData[target][fieldName] = formFields[i].value;
+                    formData[target][fieldName] = field.value;
                 });
             }
         }

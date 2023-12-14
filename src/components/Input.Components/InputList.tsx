@@ -10,8 +10,10 @@ const InputList = ({
     target: string[];
 }) => {
     const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setErrorMessage('');
         const enteredValue = parseInt(event.target.value, 10);
 
         // Verificar si el valor ingresado está en el rango del 1 al 6
@@ -22,13 +24,11 @@ const InputList = ({
                 // Resto de la lógica
             } else {
                 // El número ya ha sido seleccionado, puedes mostrar un mensaje de error
-                console.log('Error: Este número ya ha sido seleccionado.');
+                setErrorMessage('Verifica que no hayan numeros repetidos');
                 // También puedes mostrar un mensaje en la interfaz de usuario
             }
         } else {
-            // El valor ingresado no está en el rango del 1 al 6, puedes manejarlo según tus necesidades
-            console.log('Error: Ingresa un número válido entre 1 y 6.');
-            // También puedes mostrar un mensaje en la interfaz de usuario
+            setErrorMessage('Ingresa números válidos');
         }
     };
 
@@ -60,6 +60,7 @@ const InputList = ({
                     ))}
                 </div>
             </div>
+            <p className='my-0 mx-3 fw-bold text-danger'>{errorMessage}</p>
         </div>
     );
 };

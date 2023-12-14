@@ -22,14 +22,14 @@ const App = () => {
     });
 
     const [forms, setForms] = useState<formsInterface[]>();
-    const [country, setCountry] = useState('');
+    // const [country, setCountry] = useState('');
 
-    const EventHandlerCountry = (
-        event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        const value = event.target.value;
-        setCountry(value);
-    };
+    // const EventHandlerCountry = (
+    //     event: React.ChangeEvent<HTMLSelectElement>
+    // ) => {
+    //     const value = event.target.value;
+    //     setCountry(value);
+    // };
 
     useEffect(() => {
         if (data != undefined) {
