@@ -103,9 +103,9 @@ export const InputList_Input = ({
 
   useEffect(() => {
     if (wrongNumCheck) {
-      setErrorMessage('El número es incorrecto');
+      setErrorMessage('Valor incorrecto o repetido');
     } else if (repeatedNumCheck) {
-      setErrorMessage('El número está repetido');
+      setErrorMessage('Valor incorrecto o repetido');
     } else {
       setErrorMessage('');
     }

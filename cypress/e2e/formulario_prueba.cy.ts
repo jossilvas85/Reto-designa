@@ -7,125 +7,97 @@ interface formField {
   type: string;
 }
 
-// describe('Verify inputs', () => {
-//   it('Ensures every question has an input', () => {
-//     cy.visit('http://localhost:5173/');
-//     const formFields: formField[] = GetFieldNamesAndTypes();
-//     formFields.forEach((field: formField) => {
-//       cy.get(`[data-testid="${field.name}"]`).should('exist');
-//     });
-//   });
-// });
-
-// describe('Trigger inputs', () => {
-//   it('Fills every input without considering restrictions', () => {
-//     const formFields = GetFieldNamesAndTypes();
-
-//     cy.visit('http://localhost:5173/');
-//     // Falta establecer minimo
-//     formFields.forEach((field: formField) => {
-//       const { type, name } = field;
-//       switch (type) {
-//         case 'text':
-//           TextTypeTest(name);
-//           break;
-//         case 'number':
-//           // Falta establecer minimo
-//           NumberTypeTest(name);
-//           break;
-//         case 'email':
-//           EmailTypeTest(name);
-//           break;
-//         case 'checkbox':
-//           CheckboxMarkTest(name);
-//           break;
-//       }
-//     });
-
-//     // Establecer opcion aleatoria
-//     cy.get('select').each(($select) => {
-//       cy.wrap($select)
-//         .find('option')
-//         .then(() => {
-//           cy.wrap($select).select(1);
-//         });
-//     });
-//   });
-// });
-
-// const TextTypeTest = (name: string) => {
-//   cy.get(`[data-testid="${name}"]`).type('Tipo texto');
-
-//   // cy.get(`input[type="text"]`).each(($input) => {
-//   //   cy.wrap($input).type('Texto de prueba');
-//   // });
-// };
-
-// const NumberTypeTest = (name: string) => {
-//   cy.get(`[data-testid="${name}"]`).type('12345');
-//   // cy.get('input[type="number"]').each(($input) => {
-//   //   cy.wrap($input).type('1234556');
-//   // });
-// };
-
-// const EmailTypeTest = (name: string) => {
-//   cy.get(`[data-testid="${name}"]`).type('test@gmail.com');
-//   // cy.get('input[type="email"]').each(($input) => {
-//   //   cy.wrap($input).type('test@gmail.com');
-//   // });
-// };
-
-// const CheckboxMarkTest = (name: string) => {
-//   cy.get(`[data-testid="${name}"]`).check();
-//   // cy.get('input[type="checkbox"]').each(($input) => {
-//   //   cy.wrap($input).check();
-//   // });
-// };
-
-describe('REPEATED NUMBER ERROR', () => {
-  it('Repeats number on unique number inputs in order to trigger error', () => {
+describe('Verify inputs', () => {
+  it('Ensures every question has an input', () => {
     cy.visit('http://localhost:5173/');
-
-    const categories = GetListNamesByCategory();
-
-    // Fill every list element
-    for (const cat in categories) {
-      categories[cat].forEach((field: formField) => {
-        const { name } = field;
-        cy.get(`[data-testid="${name}"]`)
-          .should('have.attr', 'type', 'number')
-          .type('1');
-      });
-    }
-
-    // Check every listERROR element
-    for (const cat in categories) {
-      categories[cat].forEach((field: formField, index) => {
-        const { name } = field;
-        if (index != 0) {
-          cy.get(`[data-testid="${name}_error"]`)
-            .invoke('text')
-            .should('equal', 'Valor incorrecto o repetido');
-        } else {
-          cy.get(`[data-testid="${name}_error"]`).should('not.have.text');
-        }
-      });
-    }
-
-    // Check every listERROR element
-    for (const cat in categories) {
-      categories[cat].forEach((field: formField, index) => {
-        if (index != 0) {
-          const { name } = field;
-          cy.get(`[data-testid="${name}"]`).clear();
-          cy.get(`[data-testid="${name}_error"]`).should('not.have.text');
-        }
-      });
-    }
+    const formFields: formField[] = GetFieldNamesAndTypes();
+    formFields.forEach((field: formField) => {
+      cy.get(`[data-testid="${field.name}"]`).should('exist');
+    });
   });
 });
 
-const GetListNamesByCategory = () => {
+describe('Test InputList error message', () => {
+  it('Triggers error messages on list inputs', () => {
+    ListErrorTrigger();
+  });
+});
+
+describe('Form fill Happy Path', () => {
+  it('Fills every input', () => {
+    const formFields = GetFieldNamesAndTypes();
+
+    cy.visit('http://localhost:5173/');
+    // Falta establecer minimo
+    formFields.forEach((field: formField) => {
+      const { type, name } = field;
+      switch (type) {
+        case 'text':
+          TextTypeTest(name);
+          break;
+        case 'number':
+          // Falta establecer minimo
+          NumberTypeTest(name, type);
+          break;
+        case 'email':
+          EmailTypeTest(name);
+          break;
+        case 'checkbox':
+          CheckboxMarkTest(name);
+          break;
+      }
+    });
+
+    // Establecer opcion aleatoria
+    cy.get('select').each(($select) => {
+      cy.wrap($select)
+        .find('option')
+        .then(() => {
+          cy.wrap($select).select(1);
+        });
+    });
+
+    // Lleno todos los elementos lista
+    FillListFields();
+
+    cy.get(`[data-testid="submit-button"]`).click();
+  });
+});
+
+const TextTypeTest = (name: string) => {
+  cy.get(`[data-testid="${name}"]`).type('Tipo texto');
+};
+
+const NumberTypeTest = (name: string, type: string) => {
+  const categories = GetCategoriesAndFields();
+  // Verifico si pertenece a tipo Tabla
+  const isTableInput = Object.values(categories).some((cat) =>
+    cat.some((form: formField) => {
+      if (form.name === name) return true;
+    })
+  );
+  if (!isTableInput) {
+    const input = cy.get(`[data-testid="${name}"]`);
+    input.then(($input) => {
+      // if ($input.attr('min') != undefined) {
+      const min = parseFloat($input.attr('min') as string);
+      const max = parseFloat($input.attr('max') as string);
+
+      const randomNumber = Math.round(Math.random() * (max - min) + min);
+      input.type(randomNumber.toString())
+    });
+  }
+};
+
+const EmailTypeTest = (name: string) => {
+  cy.get(`[data-testid="${name}"]`).type('test@gmail.com');
+};
+
+const CheckboxMarkTest = (name: string) => {
+  cy.get(`[data-testid="${name}"]`).check();
+};
+
+const GetCategoriesAndFields = () => {
   const formFields = GetFieldNamesAndTypes();
   const categories = {};
   formFields.filter((field: formField) => {
@@ -139,6 +111,83 @@ const GetListNamesByCategory = () => {
   return categories;
 };
 
+const FillListFields = () => {
+  const categories = GetCategoriesAndFields();
+
+  // Ingreso numeros validos en los inputs
+  for (const cat in categories) {
+    let value = 1;
+    categories[cat].forEach((field: formField, index) => {
+      const { name } = field;
+      const inputElement = cy.get(`[data-testid="${name}"]`);
+      inputElement.type(value.toString());
+
+      // Verifico que nop hayan mensajes de error
+      const inputErrorMsg = cy.get(`[data-testid="${name}_error"]`);
+      inputErrorMsg.should('not.have.text');
+
+      value++;
+    });
+  }
+};
+
+const ListErrorTrigger = () => {
+  cy.visit('http://localhost:5173/');
+
+  const categories = GetCategoriesAndFields();
+  // Fill every list element
+  for (const cat in categories) {
+    categories[cat].forEach((field: formField) => {
+      const { name } = field;
+      cy.get(`[data-testid="${name}"]`)
+        .should('have.attr', 'type', 'number')
+        .type('1');
+    });
+  }
+
+  // Check every listERROR element
+  for (const cat in categories) {
+    categories[cat].forEach((field: formField, index) => {
+      const { name } = field;
+      cy.get(`[data-testid="${name}_error"]`)
+        .invoke('text')
+        .should('equal', 'Valor incorrecto o repetido');
+    });
+  }
+
+  // Limpio los inputs y el error debe desaparecer
+  for (const cat in categories) {
+    categories[cat].forEach((field: formField, index) => {
+      const { name } = field;
+      const inputElement = cy.get(`[data-testid="${name}"]`);
+      const inputErrorMsg = cy.get(`[data-testid="${name}_error"]`);
+
+      inputElement.clear();
+      inputErrorMsg.should('not.have.text');
+    });
+  }
+
+  // Fill every list element
+  for (const cat in categories) {
+    categories[cat].forEach((field: formField) => {
+      const { name } = field;
+      cy.get(`[data-testid="${name}"]`)
+        .should('have.attr', 'type', 'number')
+        .type('9999');
+    });
+  }
+
+  // Check every listERROR element
+  for (const cat in categories) {
+    categories[cat].forEach((field: formField, index) => {
+      const { name } = field;
+      cy.get(`[data-testid="${name}_error"]`)
+        .invoke('text')
+        .should('equal', 'Valor incorrecto o repetido');
+    });
+  }
+};
+
 const GetFieldNamesAndTypes = () => {
   const names = [];
   TutorFormData().map((element, index) => {
@@ -146,6 +195,7 @@ const GetFieldNamesAndTypes = () => {
   });
   return names;
 };
+
 const GetTypesAndNames = (data, array) => {
   const submit = [];
   // Verifico si es un arreglo
