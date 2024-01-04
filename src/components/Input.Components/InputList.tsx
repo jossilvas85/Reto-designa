@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   inputCheckboxInterface,
   inputEmailInterface,
@@ -10,6 +10,7 @@ import {
   inputTextInterface,
 } from '../../interfaces/formularioInterfaces';
 import { DinamicAttributes } from './customInputs';
+import { stringify } from 'querystring';
 
 interface selectedNumbersInterface {
   name: string;
@@ -81,45 +82,70 @@ export const InputList_Input = ({
   question,
   dataTarget,
 }: InputList_Input) => {
-  const [previousValue, setPreviousValue] = useState<number>(NaN);
+  const [currentValue, setCurrentValue] = useState<number | string>();
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [repeatedNumCheck, setRepeatedNumCheck] = useState(false);
+  const [wrongNumCheck, setWrongNumCheck] = useState(false);
+
+  // Cuidar que si se mete un valor equivocado, se mantenga el error hasta que se corrija
+
+  // El state SOLAMENTE se encarga de buscar los numeros repetidos
+
+  // Effect que comprueba numeros repetidos
+  useEffect(() => {
+    const checker = CheckRepeatedValues(selectedNumbers);
+    if (typeof checker === 'number' && checker === currentValue) {
+      setRepeatedNumCheck(true);
+    } else {
+      setRepeatedNumCheck(false);
+    }
+  }, [selectedNumbers]);
+
+  useEffect(() => {
+    if (wrongNumCheck) {
+      setErrorMessage('El número es incorrecto');
+    } else if (repeatedNumCheck) {
+      setErrorMessage('El número está repetido');
+    } else {
+      setErrorMessage('');
+    }
+  }, [wrongNumCheck, repeatedNumCheck]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     name: string
   ) => {
-    setErrorMessage('');
-
-    if (event.target.value === '') {
+    // Funcion para borrar un numero
+    const ErraseNumber = () => {
       const copySelectedNumbers = [...selectedNumbers];
       const newSelectedNumbers = copySelectedNumbers.filter(
         (item) => item.name !== name
       );
       HandlerSetSelectedNumbers([...newSelectedNumbers]);
-    } else {
-      const enteredValue = parseInt(event.target.value, 10);
+      setCurrentValue('');
+    };
 
+    // Borro el numero de los guardados cuando se borra el input
+    if (event.target.value === '') {
+      ErraseNumber();
+    } else {
+      // Si el valor ingresado excede los limites, no lo guardo y mando la alerta
+      const enteredValue = parseInt(event.target.value, 10);
       if (enteredValue < 1 || enteredValue > question.max) {
-        setErrorMessage('Valor incorrecto o repetido');
+        ErraseNumber();
+        setWrongNumCheck(true);
         return;
       }
 
-      const existingNumber = selectedNumbers.some(
-        (item) => item.number === enteredValue
-      );
-
-      if (existingNumber) {
-        setErrorMessage('Valor incorrecto o repetido');
-        return;
-      } else {
-        // Guardo solamente si el valor es correcto
-        if (typeof enteredValue === 'number' && !Number.isNaN(enteredValue)) {
-          HandlerSetSelectedNumbers([
-            ...selectedNumbers,
-            { name: name, number: enteredValue },
-          ]);
-          setPreviousValue(enteredValue);
-        }
+      // Guardo el numero aunque sea repetido para poder hacer la comparacion
+      if (typeof enteredValue === 'number' && !Number.isNaN(enteredValue)) {
+        HandlerSetSelectedNumbers([
+          ...selectedNumbers,
+          { name: name, number: enteredValue },
+        ]);
+        setWrongNumCheck(false);
+        setCurrentValue(enteredValue);
+        // }
       }
     }
   };
@@ -138,7 +164,29 @@ export const InputList_Input = ({
         onChange={(event) => handleInputChange(event, row.name as string)}
         {...DinamicAttributes({ question: row })}
       ></input>
-      <p className='form-text fw-bold text-danger'>{errorMessage}</p>
+      <p
+        className='form-text fw-bold text-danger'
+        data-testid={`${row.name}_error`}
+      >
+        {errorMessage}
+      </p>
     </div>
   );
 };
+
+const CheckRepeatedValues = (selectedNumbers: selectedNumbersInterface[]) =>
+  // value: number | string;
+  {
+    // Crear un conjunto para realizar un seguimiento de los valores vistos
+    const existingValues = new Set();
+    // Recorrer las propiedades del objeto
+    for (const obj of selectedNumbers) {
+      const { number } = obj;
+
+      if (existingValues.has(number)) {
+        return number; // Valor repetido encontrado
+      }
+      existingValues.add(number);
+    }
+    return false;
+  };

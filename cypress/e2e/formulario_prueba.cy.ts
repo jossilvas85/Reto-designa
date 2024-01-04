@@ -1,78 +1,142 @@
+import { error } from 'console';
 import {} from 'cypress';
 import _ from 'lodash';
-describe('Verify inputs', () => {
-  it('Ensures every question has an input', () => {
+
+interface formField {
+  name: string;
+  type: string;
+}
+
+// describe('Verify inputs', () => {
+//   it('Ensures every question has an input', () => {
+//     cy.visit('http://localhost:5173/');
+//     const formFields: formField[] = GetFieldNamesAndTypes();
+//     formFields.forEach((field: formField) => {
+//       cy.get(`[data-testid="${field.name}"]`).should('exist');
+//     });
+//   });
+// });
+
+// describe('Trigger inputs', () => {
+//   it('Fills every input without considering restrictions', () => {
+//     const formFields = GetFieldNamesAndTypes();
+
+//     cy.visit('http://localhost:5173/');
+//     // Falta establecer minimo
+//     formFields.forEach((field: formField) => {
+//       const { type, name } = field;
+//       switch (type) {
+//         case 'text':
+//           TextTypeTest(name);
+//           break;
+//         case 'number':
+//           // Falta establecer minimo
+//           NumberTypeTest(name);
+//           break;
+//         case 'email':
+//           EmailTypeTest(name);
+//           break;
+//         case 'checkbox':
+//           CheckboxMarkTest(name);
+//           break;
+//       }
+//     });
+
+//     // Establecer opcion aleatoria
+//     cy.get('select').each(($select) => {
+//       cy.wrap($select)
+//         .find('option')
+//         .then(() => {
+//           cy.wrap($select).select(1);
+//         });
+//     });
+//   });
+// });
+
+// const TextTypeTest = (name: string) => {
+//   cy.get(`[data-testid="${name}"]`).type('Tipo texto');
+
+//   // cy.get(`input[type="text"]`).each(($input) => {
+//   //   cy.wrap($input).type('Texto de prueba');
+//   // });
+// };
+
+// const NumberTypeTest = (name: string) => {
+//   cy.get(`[data-testid="${name}"]`).type('12345');
+//   // cy.get('input[type="number"]').each(($input) => {
+//   //   cy.wrap($input).type('1234556');
+//   // });
+// };
+
+// const EmailTypeTest = (name: string) => {
+//   cy.get(`[data-testid="${name}"]`).type('test@gmail.com');
+//   // cy.get('input[type="email"]').each(($input) => {
+//   //   cy.wrap($input).type('test@gmail.com');
+//   // });
+// };
+
+// const CheckboxMarkTest = (name: string) => {
+//   cy.get(`[data-testid="${name}"]`).check();
+//   // cy.get('input[type="checkbox"]').each(($input) => {
+//   //   cy.wrap($input).check();
+//   // });
+// };
+
+describe('REPEATED NUMBER ERROR', () => {
+  it('Repeats number on unique number inputs in order to trigger error', () => {
     cy.visit('http://localhost:5173/');
-    const formFields = GetFieldNamesAndTypes();
-    formFields.forEach((field: { name: string; type: string }) => {
-      cy.get(`[data-testid="${field.name}"]`).should('exist');
-    });
+
+    const categories = GetListNamesByCategory();
+
+    // Fill every list element
+    for (const cat in categories) {
+      categories[cat].forEach((field: formField) => {
+        const { name } = field;
+        cy.get(`[data-testid="${name}"]`)
+          .should('have.attr', 'type', 'number')
+          .type('1');
+      });
+    }
+
+    // Check every listERROR element
+    for (const cat in categories) {
+      categories[cat].forEach((field: formField, index) => {
+        const { name } = field;
+        if (index != 0) {
+          cy.get(`[data-testid="${name}_error"]`)
+            .invoke('text')
+            .should('equal', 'Valor incorrecto o repetido');
+        } else {
+          cy.get(`[data-testid="${name}_error"]`).should('not.have.text');
+        }
+      });
+    }
+
+    // Check every listERROR element
+    for (const cat in categories) {
+      categories[cat].forEach((field: formField, index) => {
+        if (index != 0) {
+          const { name } = field;
+          cy.get(`[data-testid="${name}"]`).clear();
+          cy.get(`[data-testid="${name}_error"]`).should('not.have.text');
+        }
+      });
+    }
   });
 });
 
-describe('Trigger inputs', () => {
-  it('Fills every input without considering restrictions', () => {
-    const formFields = GetFieldNamesAndTypes();
-
-    cy.visit('http://localhost:5173/');
-    // Falta establecer minimo
-    formFields.forEach((field: { name: string; type: string }) => {
-      const { type, name } = field;
-      switch (type) {
-        case 'text':
-          InputTriggerText(name);
-          break;
-        case 'number':
-          // Falta establecer minimo
-          InputTriggerNumber(name);
-          break;
-        case 'email':
-          InputTriggerEmail(name);
-          break;
-        case 'checkbox':
-          InputTriggerCheckBox(name);
-          break;
-      }
-    });
-
-    // Establecer opcion aleatoria
-    cy.get('select').each(($select) => {
-      cy.wrap($select)
-        .find('option')
-        .then(() => {
-          cy.wrap($select).select(1);
-        });
-    });
+const GetListNamesByCategory = () => {
+  const formFields = GetFieldNamesAndTypes();
+  const categories = {};
+  formFields.filter((field: formField) => {
+    if (field.name.includes('.') && field.type === 'number') {
+      const category = field.name.split('.')[0];
+      if (!categories[category]) categories[category] = [];
+      categories[category].push(field);
+    }
   });
-});
 
-const InputTriggerText = (name: string) => {
-  cy.get(`[data-testid="${name}"]`).type('Tipo texto');
-
-  // cy.get(`input[type="text"]`).each(($input) => {
-  //   cy.wrap($input).type('Texto de prueba');
-  // });
-};
-
-const InputTriggerNumber = (name: string) => {
-  cy.get(`[data-testid="${name}"]`).type('12345');
-  // cy.get('input[type="number"]').each(($input) => {
-  //   cy.wrap($input).type('1234556');
-  // });
-};
-
-const InputTriggerEmail = (name: string) => {
-  cy.get(`[data-testid="${name}"]`).type('test@gmail.com');
-  // cy.get('input[type="email"]').each(($input) => {
-  //   cy.wrap($input).type('test@gmail.com');
-  // });
-};
-
-const InputTriggerCheckBox = (name: string) => {
-  cy.get(`[data-testid="${name}"]`).check();
-  // cy.get('input[type="checkbox"]').each(($input) => {
-  //   cy.wrap($input).check();
-  // });
+  return categories;
 };
 
 const GetFieldNamesAndTypes = () => {
@@ -82,7 +146,6 @@ const GetFieldNamesAndTypes = () => {
   });
   return names;
 };
-
 const GetTypesAndNames = (data, array) => {
   const submit = [];
   // Verifico si es un arreglo

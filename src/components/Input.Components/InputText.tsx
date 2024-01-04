@@ -19,7 +19,6 @@ const InputText = ({
       data-testid={question.name}
       {...DinamicAttributes({ question })}
     ></input>
-    {/* <div className="form-text fw-bold">Sample description</div> */}
   </div>
 );
 
